@@ -1,0 +1,24 @@
+services:
+  chainlink-postgres:
+    image: postgres
+    container_name: chainlink-postgres
+    restart: always
+    ports: [ 5432:5432 ]
+    env_file: [ .chainlink-postgres/.env.postgres ]
+    volumes: [ .chainlink-postgres/data:/var/lib/postgresql/data ]
+
+  chainlink:
+    image: smartcontract/chainlink:2.5.0
+    container_name: chainlink-arbitrum-sepolia
+    restart: always
+    depends_on: [ chainlink-postgres ]
+    ports: [ 6688:6688 ]
+    volumes: [ .chainlink-arbitrum-sepolia:/chainlink ]
+    command: node -config /chainlink/config.toml -secrets /chainlink/secrets.toml start -a /chainlink/.api
+
+  verimedian_adapter:
+    image: verimedian_adapter:0.1.0
+    container_name: chainlink-adapter
+    restart: always
+    ports: [ 8080:8080 ]
+    volumes: [ .chainlink-adapter/proofs:/app/proofs ]

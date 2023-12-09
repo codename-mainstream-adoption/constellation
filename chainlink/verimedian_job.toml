@@ -1,0 +1,91 @@
+type = "directrequest"
+schemaVersion = 1
+name = "Verimedian_submitLatestPrice"
+externalJobID = "42069000-0000-0000-0000-000000000000"
+contractAddress = "0xf2aF6d9f71584edc87C7e66eAB2585B307197e91"
+minIncomingConfirmations = 0
+observationSource = """
+    decode_oracle_request [
+        type="ethabidecodelog"
+        abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)"
+        data="$(jobRun.logData)"
+        topics="$(jobRun.logTopics)"
+    ]
+
+    decode_snapshot_index [
+        type="ethabidecode"
+        abi="uint256 latestSnapshotIndex"
+        data="$(decode_oracle_request.data)"
+    ]
+
+    encode_get_inputs [
+        type="ethabiencode"
+        abi="getProofInputs(uint256 _snapshotIndex)"
+        data="{\\"_snapshotIndex\\": $(decode_snapshot_index.latestSnapshotIndex)}"
+    ]
+
+    call_get_inputs [
+        type="ethcall"
+        failEarly=true
+        extractRevertReason=true
+        contract="$(decode_oracle_request.callbackAddr)"
+        data="$(encode_get_inputs)"
+    ]
+
+    decode_proof_inputs [
+        type="ethabidecode"
+        abi="uint256[77] memory values, uint256 initialHash"
+        data="$(call_get_inputs)"
+    ]
+
+    calculate_zk_proof [
+        type="bridge"
+        name="verimedian_adapter"
+        requestData="$(decode_proof_inputs)"
+    ]
+
+    parse_proof_a [
+        type="jsonparse"
+        path="proofData,0"
+        data="$(calculate_zk_proof)"
+    ]
+
+    parse_proof_b [
+        type="jsonparse"
+        path="proofData,1"
+        data="$(calculate_zk_proof)"
+    ]
+
+    parse_proof_c [
+        type="jsonparse"
+        path="proofData,2"
+        data="$(calculate_zk_proof)"
+    ]
+
+    parse_public_signals [
+        type="jsonparse"
+        path="publicInputs"
+        data="$(calculate_zk_proof)"
+    ]
+
+    encode_submit_latest_price [
+        type="ethabiencode"
+        abi="submitLatestPrice(uint256 _snapshotIndex, uint256[2] memory proofA, uint256[2][2] memory proofB, uint256[2] memory proofC, uint256[3] memory publicSignals)"
+        data="{ \\"_snapshotIndex\\": $(decode_snapshot_index.latestSnapshotIndex), \\"proofA\\": $(parse_proof_a), \\"proofB\\": $(parse_proof_b), \\"proofC\\": $(parse_proof_c), \\"publicSignals\\": $(parse_public_signals)}"
+    ]
+
+    tx_submit_latest_price [
+        type="ethtx"
+        to="$(decode_oracle_request.callbackAddr)"
+        data="$(encode_submit_latest_price)"
+        gasLimit=400000
+    ]
+
+    decode_oracle_request -> decode_snapshot_index -> encode_get_inputs -> call_get_inputs -> decode_proof_inputs -> calculate_zk_proof
+    decode_snapshot_index -> encode_submit_latest_price
+    calculate_zk_proof -> parse_proof_a -> encode_submit_latest_price
+    calculate_zk_proof -> parse_proof_b -> encode_submit_latest_price
+    calculate_zk_proof -> parse_proof_c -> encode_submit_latest_price
+    calculate_zk_proof -> parse_public_signals -> encode_submit_latest_price
+    encode_submit_latest_price -> tx_submit_latest_price
+"""

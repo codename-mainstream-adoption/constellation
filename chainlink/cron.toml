@@ -1,0 +1,9 @@
+type = "cron"
+schemaVersion = 1
+schedule = "CRON_TZ=UTC * * * * *"
+observationSource = """
+    test_the_bridge [type="bridge" name="verimedian_adapter_home"
+                    requestData="{\\"data\\": { \\"value\\": 42 } }"]
+
+    test_the_bridge
+"""
