@@ -1,0 +1,1 @@
+import "@chainlink/v0.4/LinkToken.sol";

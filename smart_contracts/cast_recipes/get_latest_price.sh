@@ -1,0 +1,1 @@
+cast call 0xf2aF6d9f71584edc87C7e66eAB2585B307197e91 "getLatestPrice()(uint256)" --rpc-url $ARB_DEV_RPC_URL
