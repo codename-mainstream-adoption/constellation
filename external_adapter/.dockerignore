@@ -1,0 +1,6 @@
+__pycache__
+build
+venv
+Dockerfile
+Makefile
+moving_median.dat

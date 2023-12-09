@@ -1,0 +1,97 @@
+openapi: 3.0.0
+
+info:
+  title: Verimedian External Adapter
+  description: Allows a Chainlink node to compute a verifiable median.
+  version: 0.1.0
+
+paths:
+  /home:
+    post:
+      operationId: app.home
+      description: Prints the incoming request data to console.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                values:
+                  type: array
+                  items:
+                    type: integer
+                initialHash:
+                  type: integer
+      responses:
+        200:
+          description: Success
+        400:
+          description: Client error.
+  /full_prove:
+    post:
+      operationId: app.full_prove
+      description: |
+        Computes the median of an array and a zero knowledge proof that the
+        value is the median.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - values
+                - initialHash
+              properties:
+                values:
+                  type: array
+                  items:
+                    type: integer
+                initialHash:
+                  type: integer
+      responses:
+        200:
+          description: Successful response from the external adapter.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - proofData
+                  - publicInputs
+                properties:
+                  proofData:
+                    oneOf:
+                      - type: array
+                        items:
+                          type: integer
+                      - type: array
+                        items:
+                          type: array
+                          items:
+                            type: integer
+                  publicInputs:
+                    type: array
+                    items:
+                      type: integer
+        400:
+          description: Client error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+components:
+  schemas:
+    ErrorMessage:
+      type: object
+      required:
+        - msg
+      properties:
+        msg:
+          type: string
