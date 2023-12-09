@@ -4,3 +4,9 @@
 [submodule "smart_contracts/lib/foundry-chainlink-toolkit"]
 	path = smart_contracts/lib/foundry-chainlink-toolkit
 	url = https://github.com/smartcontractkit/foundry-chainlink-toolkit
+[submodule "verimedian/depends/rapidsnark"]
+	path = verimedian/depends/rapidsnark
+	url = https://github.com/iden3/rapidsnark.git
+[submodule "verimedian/depends/circom"]
+	path = verimedian/depends/circom
+	url = https://github.com/iden3/circom.git
