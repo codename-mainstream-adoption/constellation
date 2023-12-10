@@ -1,1 +1,1 @@
-cast send --rpc-url $ARB_DEV_RPC_URL --private-key $ARB_DEV_PKEY 0xf2aF6d9f71584edc87C7e66eAB2585B307197e91 "setProverStatus(address prover, bool status)" 0xF676999Bb8D0c4a87B4b653fe12aAe3B68125b11 true
+cast send --rpc-url $ARB_DEV_RPC_URL --private-key $ARB_DEV_PKEY 0xf2aF6d9f71584edc87C7e66eAB2585B307197e91 "setProverStatus(address prover, bool status)" 0xcaDF8A407F61fcBEb1f693e94880782fD1356EA7 true
